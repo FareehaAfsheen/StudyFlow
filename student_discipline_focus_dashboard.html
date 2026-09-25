@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Discipline & Focus Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#111827',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                        },
+                        rose: {
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+        }
+        .glow-rose {
+            box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.3);
+        }
+        .glow-indigo {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- Header Navbar -->
+    <header class="border-b border-slate-800/80 bg-slate-950/80 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        DISCIPLINE <span class="text-xs bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">PRO</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Master Your Time & Focus</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div id="current-date-display" class="hidden sm:block text-xs font-medium text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <!-- Date inserted by JS -->
+                </div>
+                <button onclick="resetDayDataConfirm()" class="text-xs text-slate-400 hover:text-rose-400 transition-colors px-2 py-1 flex items-center gap-1.5" title="Reset Today's Data">
+                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden md:inline">Reset Day</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-grow w-full space-y-6">
+
+        <!-- Top Overall Task Progress Bar Section -->
+        <section class="glass-card rounded-2xl p-5 border border-slate-800">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-3">
+                <div>
+                    <h2 class="text-sm uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i> Overall Task Completion
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Stay disciplined to complete all active tasks</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="progress-percentage-text" class="text-2xl font-black text-emerald-400">0%</span>
+                    <span id="progress-fraction-text" class="text-xs font-mono bg-slate-800 px-2.5 py-1 rounded-md text-slate-300 border border-slate-700">0/0 Tasks</span>
+                </div>
+            </div>
+            <!-- Progress Bar Container -->
+            <div class="w-full bg-slate-800/80 rounded-full h-3.5 p-0.5 border border-slate-700/50 overflow-hidden">
+                <div id="main-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500 ease-out w-0 shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT COLUMN: Focus Timer & Water Tracker (5/12 cols) -->
+            <div class="lg:col-span-5 space-y-6">
+
+                <!-- Universal & Task Focus Timer Card -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-stopwatch text-indigo-400"></i> Focus Timer
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="togglePresetEditModal()" class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-700 transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-gear text-[10px]"></i> Presets
+                            </button>
+                            <div id="active-task-badge" class="hidden text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full border border-indigo-500/30 truncate max-w-[150px]">
+                                <!-- Active task indicator -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timer Mode Switches -->
+                    <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/80 rounded-xl mb-4 text-xs font-medium border border-slate-800">
+                        <button onclick="switchTimerMode('work')" id="mode-work-btn" class="py-2 rounded-lg transition-all text-slate-400 hover:text-white">Work</button>
+                        <button onclick="switchTimerMode('shortBreak')" id="mode-short-btn" class="py-2 rounded-lg transition-all text-slate-400 hover:text-white">Short Break</button>
+                        <button onclick="switchTimerMode('longBreak')" id="mode-long-btn" class="py-2 rounded-lg transition-all text-slate-400 hover:text-white">Long Break</button>
+                    </div>
+
+                    <!-- Timer Display Box -->
+                    <div class="text-center my-3 py-5 bg-slate-950/40 rounded-2xl border border-slate-800/80 flex flex-col items-center justify-center relative">
+                        <!-- Direct Time Display / Inline Editing -->
+                        <div id="timer-display-container" class="flex items-center justify-center gap-1 mb-1">
+                            <span id="timer-display" onclick="enableDirectTimeEdit()" class="text-5xl sm:text-6xl font-black font-mono tracking-tight text-white cursor-pointer hover:text-emerald-400 transition-colors" title="Click to edit time">
+                                25:00
+                            </span>
+                            <button onclick="enableDirectTimeEdit()" class="text-slate-500 hover:text-emerald-400 text-xs p-1" title="Amend Time">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
+
+                        <!-- Direct Edit Inputs (Hidden by default) -->
+                        <div id="timer-edit-container" class="hidden flex items-center gap-2 mb-2">
+                            <input type="number" id="custom-min-input" min="0" max="999" placeholder="MM" class="w-16 text-center bg-slate-900 border border-slate-700 text-white rounded-lg py-1 font-mono text-xl focus:border-emerald-500 outline-none">
+                            <span class="text-xl font-bold text-slate-400">:</span>
+                            <input type="number" id="custom-sec-input" min="0" max="59" placeholder="SS" class="w-16 text-center bg-slate-900 border border-slate-700 text-white rounded-lg py-1 font-mono text-xl focus:border-emerald-500 outline-none">
+                            <button onclick="applyDirectTimeEdit()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-all">
+                                Set
+                            </button>
+                            <button onclick="cancelDirectTimeEdit()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1.5 rounded-lg text-xs transition-all">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <p id="timer-status-label" class="text-xs uppercase tracking-widest text-emerald-400 font-semibold">Ready to Focus</p>
+
+                        <!-- Quick Time Amendment Controls (+/- Minutes) -->
+                        <div class="flex items-center justify-center gap-1.5 mt-3 pt-2 border-t border-slate-800/60 text-xs">
+                            <span class="text-[10px] text-slate-500 uppercase tracking-wider mr-1">Amend Time:</span>
+                            <button onclick="amendRemainingTime(-300)" class="px-2 py-1 bg-slate-900 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 border border-slate-800 rounded-md transition-all font-mono">-5m</button>
+                            <button onclick="amendRemainingTime(-60)" class="px-2 py-1 bg-slate-900 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 border border-slate-800 rounded-md transition-all font-mono">-1m</button>
+                            <button onclick="amendRemainingTime(60)" class="px-2 py-1 bg-slate-900 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-400 border border-slate-800 rounded-md transition-all font-mono">+1m</button>
+                            <button onclick="amendRemainingTime(300)" class="px-2 py-1 bg-slate-900 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-400 border border-slate-800 rounded-md transition-all font-mono">+5m</button>
+                        </div>
+                    </div>
+
+                    <!-- Timer Action Buttons -->
+                    <div class="flex items-center justify-center gap-3 mt-4">
+                        <button id="timer-start-btn" onclick="toggleMainTimer()" class="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs" id="timer-start-icon"></i> <span id="timer-start-text">Start Focus</span>
+                        </button>
+                        <button onclick="resetMainTimer()" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-all border border-slate-700 active:scale-95" title="Reset Timer">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Water Intake Tracker -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-glass-water text-cyan-400"></i> Hydration Tracker
+                        </h2>
+                        <span class="text-xs text-slate-400">Goal: <strong class="text-cyan-400">8 Glasses</strong> / Day</span>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-xl border border-slate-800 mb-4">
+                        <div>
+                            <div class="text-2xl font-bold text-cyan-300 font-mono"><span id="water-glasses-count">0</span> <span class="text-xs font-sans text-slate-400">/ 8 Glasses</span></div>
+                            <p id="water-glasses-text" class="text-xs text-slate-400 mt-0.5">0 of 8 glasses completed</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="addWater(-1)" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 transition-all active:scale-95" title="Remove glass">
+                                <i class="fa-solid fa-minus text-xs"></i>
+                            </button>
+                            <button onclick="addWater(1)" class="w-9 h-9 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 flex items-center justify-center border border-cyan-500/30 transition-all active:scale-95" title="Add glass">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Water Glasses Grid -->
+                    <div id="water-glasses-container" class="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                        <!-- Glasses generated via JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: To-Do List, Hours Tallies & Color-Coded Calendar (7/12 cols) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Productive vs Wasted Hours Summary Tallies -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Productive Hours Tally -->
+                    <div class="glass-card glass-card-hover rounded-2xl p-5 border-l-4 border-l-emerald-500 relative overflow-hidden">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Productive Hours</p>
+                                <h3 class="text-3xl font-black text-white font-mono my-1" id="productive-hours-display">0.0 <span class="text-sm font-sans text-slate-400">hrs</span></h3>
+                                <p class="text-xs text-slate-400">Tracked automatically + manually</p>
+                            </div>
+                            <div class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400 border border-emerald-500/20">
+                                <i class="fa-solid fa-brain text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 flex gap-2">
+                            <button onclick="addManualTime('productive', 0.5)" class="text-xs bg-slate-800/80 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all">+30m</button>
+                            <button onclick="addManualTime('productive', 1.0)" class="text-xs bg-slate-800/80 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all">+1.0h</button>
+                        </div>
+                    </div>
+
+                    <!-- Wasted / Procrastinated Hours Tally -->
+                    <div class="glass-card glass-card-hover rounded-2xl p-5 border-l-4 border-l-rose-500 relative overflow-hidden">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-rose-400">Procrastinated / Wasted</p>
+                                <h3 class="text-3xl font-black text-white font-mono my-1" id="wasted-hours-display">0.0 <span class="text-sm font-sans text-slate-400">hrs</span></h3>
+                                <p class="text-xs text-slate-400">Manual input & distraction log</p>
+                            </div>
+                            <div class="p-2.5 bg-rose-500/10 rounded-xl text-rose-400 border border-rose-500/20">
+                                <i class="fa-solid fa-hourglass-end text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap gap-2">
+                            <button onclick="addManualTime('wasted', 0.25)" class="text-xs bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 px-2 py-1.5 rounded-lg border border-slate-700 transition-all">+15m</button>
+                            <button onclick="addManualTime('wasted', 0.5)" class="text-xs bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 px-2 py-1.5 rounded-lg border border-slate-700 transition-all">+30m</button>
+                            <button onclick="addManualTime('wasted', 1.0)" class="text-xs bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-300 text-slate-300 px-2 py-1.5 rounded-lg border border-slate-700 transition-all">+1.0h</button>
+                            <button onclick="promptReasonAndAddWasted()" class="text-xs bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-2 py-1.5 rounded-lg border border-rose-500/30 transition-all flex items-center gap-1" title="Log with reason tag">
+                                <i class="fa-solid fa-tag text-[10px]"></i> Log Reason
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Focused Task List (To-Do) Card -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-emerald-400"></i> Focused Task List
+                            </h2>
+                            <p class="text-xs text-slate-400">Bind focus timer directly to tasks to log time automatically</p>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 self-start sm:self-auto">
+                            <i class="fa-solid fa-clock text-slate-500 mr-1"></i> Tracked Task Time
+                        </span>
+                    </div>
+
+                    <!-- Add Task Form -->
+                    <form onsubmit="addNewTask(event)" class="mb-5 space-y-3">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="task-input-title" placeholder="Enter study task name..." required class="flex-grow bg-slate-900/90 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-white rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-500 outline-none transition-all">
+                            
+                            <div class="flex gap-2">
+                                <select id="task-input-priority" class="bg-slate-900/90 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2.5 focus:border-emerald-500 outline-none">
+                                    <option value="high">High Priority</option>
+                                    <option value="medium" selected>Med Priority</option>
+                                    <option value="low">Low Priority</option>
+                                </select>
+                                <input type="number" id="task-input-est" min="0.1" step="0.5" placeholder="Est. (hrs)" value="1.0" class="w-24 bg-slate-900/90 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2.5 focus:border-emerald-500 outline-none">
+                                
+                                <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl transition-all active:scale-95 text-xs flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Filter Tabs -->
+                    <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-4 text-xs font-medium">
+                        <button onclick="setTaskFilter('all')" id="filter-all" class="text-emerald-400 font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">All Tasks</button>
+                        <button onclick="setTaskFilter('pending')" id="filter-pending" class="text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-md">Pending</button>
+                        <button onclick="setTaskFilter('completed')" id="filter-completed" class="text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-md">Completed</button>
+                    </div>
+
+                    <!-- Tasks Scrollable List -->
+                    <div id="tasks-container" class="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                        <!-- Tasks dynamically rendered here -->
+                    </div>
+                </div>
+
+                <!-- Color-Coded History Calendar Card -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-days text-indigo-400"></i> Daily Discipline History
+                            </h2>
+                            <p class="text-xs text-slate-400">Click a logged day to view historical discipline reports</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 text-xs transition-all">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="calendar-month-year" class="text-xs font-bold text-slate-200 font-mono px-2">Month Year</span>
+                            <button onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 text-xs transition-all">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Legend -->
+                    <div class="flex items-center gap-4 text-[11px] mb-3 text-slate-400 border-b border-slate-800 pb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 80%+ (Grade A)
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> 60-79% (Grade B/C)
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> &lt;60% (Grade D/F)
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid Header -->
+                    <div class="grid grid-cols-7 text-center font-semibold text-[11px] text-slate-500 uppercase tracking-wider mb-2">
+                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    </div>
+
+                    <!-- Calendar Days Grid -->
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1.5">
+                        <!-- Days rendered dynamically by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- End of Day Evaluation Trigger Banner -->
+        <section class="mt-8 pt-4">
+            <div class="glass-card rounded-2xl p-6 sm:p-8 text-center border-t-2 border-t-rose-500/50 bg-gradient-to-b from-slate-900/80 to-slate-950/90 relative overflow-hidden">
+                <div class="max-w-2xl mx-auto space-y-3">
+                    <h2 class="text-xl font-bold text-white tracking-tight flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-flag-checkered text-rose-500"></i> Ready to Wrap Up Today?
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400">
+                        Evaluates your day using your Productive vs. Procrastinated time ratio, completed task percentage, and hydration levels to calculate your Daily Discipline Score and save it to your history calendar.
+                    </p>
+                    <div class="pt-2">
+                        <button onclick="openEndDayEvaluationModal()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 text-white font-extrabold rounded-2xl transition-all shadow-lg shadow-rose-600/30 hover:shadow-rose-600/50 active:scale-95 text-base tracking-wider uppercase flex items-center justify-center gap-3 mx-auto">
+                            <i class="fa-solid fa-power-off text-lg"></i> END DAY & EVALUATE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Timer Preset Customization Modal -->
+    <div id="preset-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="togglePresetEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-emerald-400"></i> Amend Timer Presets
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Set default durations for focus and break sessions (in minutes).</p>
+            
+            <form onsubmit="saveCustomPresets(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Focus Session (minutes)</label>
+                    <input type="number" id="preset-work-input" min="1" max="180" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Short Break (minutes)</label>
+                    <input type="number" id="preset-short-input" min="1" max="60" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Long Break (minutes)</label>
+                    <input type="number" id="preset-long-input" min="1" max="120" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition-all">
+                        Save Presets
+                    </button>
+                    <button type="button" onclick="togglePresetEditModal()" class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- End of Day Evaluation Modal -->
+    <div id="evaluation-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700/80 rounded-3xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative transform scale-95 transition-transform duration-300" id="modal-card">
+            
+            <button onclick="closeEvaluationModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-rose-500/10 text-rose-500 rounded-2xl border border-rose-500/20 mb-2">
+                    <i class="fa-solid fa-award text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white">Daily Discipline Report</h3>
+                <p class="text-xs text-slate-400 mt-1" id="eval-modal-date">Evaluation for Today</p>
+            </div>
+
+            <!-- Discipline Score & Grade Header -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-center flex flex-col justify-center">
+                    <span class="text-xs text-slate-400 font-semibold uppercase">Grade</span>
+                    <span id="eval-grade-display" class="text-4xl font-black text-emerald-400 mt-1">A+</span>
+                </div>
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-center flex flex-col justify-center">
+                    <span class="text-xs text-slate-400 font-semibold uppercase">Discipline Score</span>
+                    <span id="eval-score-display" class="text-4xl font-black text-white mt-1">92<span class="text-base text-slate-500 font-normal">/100</span></span>
+                </div>
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-center flex flex-col justify-center">
+                    <span class="text-xs text-slate-400 font-semibold uppercase">Focus Ratio</span>
+                    <span id="eval-ratio-display" class="text-xl font-bold text-cyan-400 mt-1">85% Productive</span>
+                </div>
+            </div>
+
+            <!-- Key Metrics Summary Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400">Productive</p>
+                    <p id="eval-productive-text" class="text-base font-bold text-emerald-400 font-mono">0.0h</p>
+                </div>
+                <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400">Procrastinated</p>
+                    <p id="eval-wasted-text" class="text-base font-bold text-rose-400 font-mono">0.0h</p>
+                </div>
+                <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400">Tasks Completed</p>
+                    <p id="eval-tasks-text" class="text-base font-bold text-indigo-400 font-mono">0/0</p>
+                </div>
+                <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400">Hydration</p>
+                    <p id="eval-water-text" class="text-base font-bold text-cyan-400 font-mono">0 / 8 Glasses</p>
+                </div>
+            </div>
+
+            <!-- Smart Feedback Box -->
+            <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 mb-6">
+                <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> Performance Analysis & Advice
+                </h4>
+                <p id="eval-feedback-text" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Analyzing day metrics...
+                </p>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="saveAndArchiveDay()" class="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Save to Calendar & Reset Day
+                </button>
+                <button onclick="closeEvaluationModal()" class="py-3 px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-all text-sm border border-slate-700">
+                    Keep Editing Today
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Historical Date Details Modal -->
+    <div id="history-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700/80 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center mb-4">
+                <span id="hist-modal-date" class="text-xs font-bold font-mono text-indigo-400 uppercase tracking-widest">Date</span>
+                <h3 id="hist-modal-title" class="text-xl font-bold text-white mt-0.5">Historical Summary</h3>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400 font-medium">Discipline Grade</p>
+                    <p id="hist-modal-grade" class="text-2xl font-black text-emerald-400 mt-0.5">A+</p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[10px] uppercase text-slate-400 font-medium">Overall Score</p>
+                    <p id="hist-modal-score" class="text-2xl font-black text-white mt-0.5">90/100</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-center">
+                <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[9px] uppercase text-slate-400">Productive</p>
+                    <p id="hist-modal-prod" class="text-sm font-bold text-emerald-400 font-mono">0.0h</p>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[9px] uppercase text-slate-400">Wasted</p>
+                    <p id="hist-modal-wasted" class="text-sm font-bold text-rose-400 font-mono">0.0h</p>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[9px] uppercase text-slate-400">Tasks Rate</p>
+                    <p id="hist-modal-tasks" class="text-sm font-bold text-indigo-400 font-mono">0%</p>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[9px] uppercase text-slate-400">Water</p>
+                    <p id="hist-modal-water" class="text-sm font-bold text-cyan-400 font-mono">0/8</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 mb-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Archived Feedback</p>
+                <p id="hist-modal-feedback" class="text-xs text-slate-300 leading-relaxed">No notes available.</p>
+            </div>
+
+            <button onclick="closeHistoryModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl text-xs transition-all border border-slate-700">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global Application State
+        let state = {
+            tasks: [],
+            productiveHours: 0.0,
+            wastedHours: 0.0,
+            waterGlasses: 0,
+            activeTaskId: null,
+            filter: 'all',
+            
+            calendarHistory: {},
+            currentCalDate: new Date(),
+            latestEvaluation: null,
+
+            timerPresets: {
+                work: 25 * 60,
+                shortBreak: 5 * 60,
+                longBreak: 15 * 60
+            },
+            timer: {
+                mode: 'work',
+                timeLeft: 25 * 60,
+                isRunning: false,
+                intervalId: null
+            }
+        };
+
+        // Initialize application on DOM load
+        window.onload = function() {
+            loadFromLocalStorage();
+            updateDateDisplay();
+            renderTasks();
+            renderWaterTracker();
+            updateTalliesDisplay();
+            updateModeButtons();
+            updateTimerDisplay();
+            renderCalendar();
+        };
+
+        function updateDateDisplay() {
+            const now = new Date();
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('current-date-display').innerText = now.toLocaleDateString('en-US', options);
+        }
+
+        function getTodayKey() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('student_discipline_state_v3', JSON.stringify({
+                tasks: state.tasks,
+                productiveHours: state.productiveHours,
+                wastedHours: state.wastedHours,
+                waterGlasses: state.waterGlasses,
+                activeTaskId: state.activeTaskId,
+                timerPresets: state.timerPresets,
+                calendarHistory: state.calendarHistory
+            }));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('student_discipline_state_v3');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.tasks = parsed.tasks || [];
+                    state.productiveHours = parsed.productiveHours || 0.0;
+                    state.wastedHours = parsed.wastedHours || 0.0;
+                    state.waterGlasses = parsed.waterGlasses || 0;
+                    state.activeTaskId = parsed.activeTaskId || null;
+                    state.calendarHistory = parsed.calendarHistory || {};
+                    if (parsed.timerPresets) {
+                        state.timerPresets = parsed.timerPresets;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse saved state", e);
+                }
+            } else {
+                state.tasks = [
+                    { id: '1', title: 'Complete Calculus Chapter 3 Problems', priority: 'high', estimated: 1.5, spentMinutes: 30, completed: false },
+                    { id: '2', title: 'Review Organic Chemistry Notes', priority: 'medium', estimated: 1.0, spentMinutes: 0, completed: false }
+                ];
+            }
+            state.timer.timeLeft = state.timerPresets[state.timer.mode];
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                       TIMER LOGIC & CONTROLS                               */
+        /* -------------------------------------------------------------------------- */
+
+        function toggleMainTimer() {
+            if (state.timer.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (state.timer.timeLeft <= 0) return;
+            
+            // Clear any existing timer just in case
+            if (state.timer.intervalId) {
+                clearInterval(state.timer.intervalId);
+            }
+
+            state.timer.isRunning = true;
+            
+            // Update Start/Pause Button UI
+            document.getElementById('timer-start-text').innerText = "Pause";
+            document.getElementById('timer-start-icon').className = "fa-solid fa-pause text-xs";
+            document.getElementById('timer-start-btn').className = "flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2";
+            document.getElementById('timer-status-label').innerText = state.timer.mode === 'work' ? "Focusing..." : "On Break";
+
+            // Start countdown loop
+            state.timer.intervalId = setInterval(() => {
+                if (state.timer.timeLeft > 0) {
+                    state.timer.timeLeft--;
+                    updateTimerDisplay();
+
+                    // If work mode, accumulate productive hours and task focus minutes
+                    if (state.timer.mode === 'work') {
+                        state.productiveHours += (1 / 3600);
+                        if (state.activeTaskId) {
+                            const activeTask = state.tasks.find(t => t.id === state.activeTaskId);
+                            if (activeTask) {
+                                activeTask.spentMinutes += (1 / 60);
+                            }
+                        }
+                        updateTalliesDisplay();
+                        renderTasks();
+                    }
+                } else {
+                    // Session Completed
+                    pauseTimer();
+                    playCompletionSound();
+                    saveToLocalStorage();
+                    
+                    const msg = state.timer.mode === 'work' 
+                        ? "Great job! Focus session completed. Take a break!" 
+                        : "Break time is over! Ready for the next focus sprint?";
+                    
+                    setTimeout(() => alert(msg), 100);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            state.timer.isRunning = false;
+            if (state.timer.intervalId) {
+                clearInterval(state.timer.intervalId);
+                state.timer.intervalId = null;
+            }
+            document.getElementById('timer-start-text').innerText = "Start Focus";
+            document.getElementById('timer-start-icon').className = "fa-solid fa-play text-xs";
+            document.getElementById('timer-start-btn').className = "flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2";
+            document.getElementById('timer-status-label').innerText = "Paused";
+            saveToLocalStorage();
+        }
+
+        function resetMainTimer() {
+            pauseTimer();
+            state.timer.timeLeft = state.timerPresets[state.timer.mode];
+            updateTimerDisplay();
+            document.getElementById('timer-status-label').innerText = "Ready to Focus";
+        }
+
+        function switchTimerMode(mode) {
+            pauseTimer();
+            state.timer.mode = mode;
+            state.timer.timeLeft = state.timerPresets[mode];
+            cancelDirectTimeEdit();
+            updateTimerDisplay();
+            updateModeButtons();
+        }
+
+        function updateModeButtons() {
+            ['work', 'shortBreak', 'longBreak'].forEach(m => {
+                const btnId = m === 'work' ? 'mode-work-btn' : m === 'shortBreak' ? 'mode-short-btn' : 'mode-long-btn';
+                const btn = document.getElementById(btnId);
+                if (m === state.timer.mode) {
+                    btn.className = "py-2 rounded-lg transition-all text-emerald-400 bg-emerald-500/10 font-bold border border-emerald-500/20";
+                } else {
+                    btn.className = "py-2 rounded-lg transition-all text-slate-400 hover:text-white";
+                }
+            });
+        }
+
+        function amendRemainingTime(secondsChange) {
+            state.timer.timeLeft = Math.max(0, state.timer.timeLeft + secondsChange);
+            updateTimerDisplay();
+        }
+
+        function enableDirectTimeEdit() {
+            document.getElementById('timer-display-container').classList.add('hidden');
+            const editContainer = document.getElementById('timer-edit-container');
+            editContainer.classList.remove('hidden');
+
+            const mins = Math.floor(state.timer.timeLeft / 60);
+            const secs = state.timer.timeLeft % 60;
+            document.getElementById('custom-min-input').value = mins;
+            document.getElementById('custom-sec-input').value = secs;
+        }
+
+        function cancelDirectTimeEdit() {
+            document.getElementById('timer-edit-container').classList.add('hidden');
+            document.getElementById('timer-display-container').classList.remove('hidden');
+        }
+
+        function applyDirectTimeEdit() {
+            const mins = parseInt(document.getElementById('custom-min-input').value, 10) || 0;
+            const secs = parseInt(document.getElementById('custom-sec-input').value, 10) || 0;
+            const totalSecs = (Math.max(0, mins) * 60) + Math.min(59, Math.max(0, secs));
+
+            state.timer.timeLeft = totalSecs;
+            cancelDirectTimeEdit();
+            updateTimerDisplay();
+        }
+
+        function togglePresetEditModal() {
+            const modal = document.getElementById('preset-modal');
+            const isHidden = modal.classList.contains('opacity-0');
+            
+            if (isHidden) {
+                document.getElementById('preset-work-input').value = Math.round(state.timerPresets.work / 60);
+                document.getElementById('preset-short-input').value = Math.round(state.timerPresets.shortBreak / 60);
+                document.getElementById('preset-long-input').value = Math.round(state.timerPresets.longBreak / 60);
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function saveCustomPresets(e) {
+            e.preventDefault();
+            const workMins = parseInt(document.getElementById('preset-work-input').value, 10) || 25;
+            const shortMins = parseInt(document.getElementById('preset-short-input').value, 10) || 5;
+            const longMins = parseInt(document.getElementById('preset-long-input').value, 10) || 15;
+
+            state.timerPresets.work = workMins * 60;
+            state.timerPresets.shortBreak = shortMins * 60;
+            state.timerPresets.longBreak = longMins * 60;
+
+            saveToLocalStorage();
+            togglePresetEditModal();
+            switchTimerMode(state.timer.mode);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(state.timer.timeLeft / 60);
+            const secs = state.timer.timeLeft % 60;
+            const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = formatted;
+        }
+
+        function playCompletionSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 note
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.6);
+            } catch(e) {}
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           TASK MANAGEMENT                                  */
+        /* -------------------------------------------------------------------------- */
+
+        function addNewTask(event) {
+            event.preventDefault();
+            const titleInput = document.getElementById('task-input-title');
+            const priorityInput = document.getElementById('task-input-priority');
+            const estInput = document.getElementById('task-input-est');
+
+            const title = titleInput.value.trim();
+            if (!title) return;
+
+            const newTask = {
+                id: Date.now().toString(),
+                title: title,
+                priority: priorityInput.value,
+                estimated: parseFloat(estInput.value) || 1.0,
+                spentMinutes: 0,
+                completed: false
+            };
+
+            state.tasks.push(newTask);
+            titleInput.value = '';
+            saveToLocalStorage();
+            renderTasks();
+        }
+
+        function toggleTaskComplete(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (state.activeTaskId === id && task.completed) {
+                    state.activeTaskId = null;
+                    updateActiveTaskBadge();
+                }
+                saveToLocalStorage();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            if (state.activeTaskId === id) {
+                state.activeTaskId = null;
+                updateActiveTaskBadge();
+            }
+            saveToLocalStorage();
+            renderTasks();
+        }
+
+        function bindTimerToTask(id) {
+            if (state.activeTaskId === id) {
+                state.activeTaskId = null;
+            } else {
+                state.activeTaskId = id;
+                switchTimerMode('work');
+            }
+            saveToLocalStorage();
+            renderTasks();
+            updateActiveTaskBadge();
+        }
+
+        function updateActiveTaskBadge() {
+            const badge = document.getElementById('active-task-badge');
+            if (state.activeTaskId) {
+                const task = state.tasks.find(t => t.id === state.activeTaskId);
+                if (task) {
+                    badge.innerText = `🎯 ${task.title}`;
+                    badge.classList.remove('hidden');
+                    return;
+                }
+            }
+            badge.classList.add('hidden');
+        }
+
+        function setTaskFilter(filter) {
+            state.filter = filter;
+            ['all', 'pending', 'completed'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = "text-emerald-400 font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20";
+                } else {
+                    btn.className = "text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-md";
+                }
+            });
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            let filtered = state.tasks;
+            if (state.filter === 'pending') filtered = state.tasks.filter(t => !t.completed);
+            if (state.filter === 'completed') filtered = state.tasks.filter(t => t.completed);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 text-xs">
+                        No ${state.filter !== 'all' ? state.filter : ''} tasks found. Add a new study task to begin!
+                    </div>
+                `;
+            } else {
+                filtered.forEach(task => {
+                    const isBound = state.activeTaskId === task.id;
+                    const spentHours = (task.spentMinutes / 60).toFixed(1);
+                    
+                    const priorityColors = {
+                        high: 'border-l-rose-500 bg-rose-500/5',
+                        medium: 'border-l-amber-500 bg-amber-500/5',
+                        low: 'border-l-emerald-500 bg-emerald-500/5'
+                    };
+
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 border-l-4 ${priorityColors[task.priority] || 'border-l-slate-500'} flex items-center justify-between gap-3 transition-all ${task.completed ? 'opacity-60' : ''}`;
+
+                    taskEl.innerHTML = `
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <button onclick="toggleTaskComplete('${task.id}')" class="w-5 h-5 rounded border ${task.completed ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'border-slate-600 hover:border-slate-400'} flex items-center justify-center text-xs transition-colors">
+                                ${task.completed ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </button>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-semibold text-slate-200 truncate ${task.completed ? 'line-through text-slate-500' : ''}">${escapeHtml(task.title)}</p>
+                                <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-400">
+                                    <span class="font-mono"><i class="fa-regular fa-clock text-slate-500"></i> ${spentHours} / ${task.estimated}h</span>
+                                    <span class="uppercase font-bold tracking-wider text-[9px] px-1.5 py-0.2 rounded ${task.priority === 'high' ? 'text-rose-400 bg-rose-500/10' : task.priority === 'medium' ? 'text-amber-400 bg-amber-500/10' : 'text-emerald-400 bg-emerald-500/10'}">${task.priority}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="bindTimerToTask('${task.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${isBound ? 'bg-indigo-500 text-white font-bold glow-indigo' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}" title="${isBound ? 'Active timer task' : 'Bind timer to this task'}">
+                                <i class="fa-solid ${isBound ? 'fa-pause' : 'fa-play'} text-[10px]"></i> ${isBound ? 'Active' : 'Focus'}
+                            </button>
+                            <button onclick="deleteTask('${task.id}')" class="text-slate-500 hover:text-rose-400 p-1.5 transition-colors">
+                                <i class="fa-regular fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(taskEl);
+                });
+            }
+
+            updateProgressBar();
+            updateActiveTaskBadge();
+        }
+
+        function updateProgressBar() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            document.getElementById('main-progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-percentage-text').innerText = `${pct}%`;
+            document.getElementById('progress-fraction-text').innerText = `${completed}/${total} Tasks`;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           WATER TRACKER                                    */
+        /* -------------------------------------------------------------------------- */
+
+        function addWater(glasses) {
+            state.waterGlasses = Math.max(0, Math.min(8, state.waterGlasses + glasses));
+            saveToLocalStorage();
+            renderWaterTracker();
+        }
+
+        function renderWaterTracker() {
+            document.getElementById('water-glasses-count').innerText = state.waterGlasses;
+            document.getElementById('water-glasses-text').innerText = `${state.waterGlasses} of 8 glasses completed`;
+
+            const glassesContainer = document.getElementById('water-glasses-container');
+            glassesContainer.innerHTML = '';
+
+            for (let i = 1; i <= 8; i++) {
+                const isFull = i <= state.waterGlasses;
+                const glassBtn = document.createElement('button');
+                glassBtn.onclick = () => {
+                    state.waterGlasses = i === state.waterGlasses ? i - 1 : i;
+                    saveToLocalStorage();
+                    renderWaterTracker();
+                };
+                glassBtn.className = `p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${isFull ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-slate-900/50 border-slate-800 text-slate-600 hover:border-slate-700'}`;
+                glassBtn.innerHTML = `
+                    <i class="fa-solid fa-glass-water text-lg ${isFull ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]' : 'text-slate-700'}"></i>
+                    <span class="text-[9px] font-mono">#${i}</span>
+                `;
+                glassesContainer.appendChild(glassBtn);
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                         HOURS & TALLIES                                    */
+        /* -------------------------------------------------------------------------- */
+
+        function addManualTime(type, hours) {
+            if (type === 'productive') {
+                state.productiveHours += hours;
+            } else {
+                state.wastedHours += hours;
+            }
+            saveToLocalStorage();
+            updateTalliesDisplay();
+        }
+
+        function promptReasonAndAddWasted() {
+            const reason = prompt("Enter reason for distraction/procrastination (e.g. Social Media, Gaming, Daydreaming):");
+            if (reason) {
+                addManualTime('wasted', 0.5);
+            }
+        }
+
+        function updateTalliesDisplay() {
+            document.getElementById('productive-hours-display').innerHTML = `${state.productiveHours.toFixed(1)} <span class="text-sm font-sans text-slate-400">hrs</span>`;
+            document.getElementById('wasted-hours-display').innerHTML = `${state.wastedHours.toFixed(1)} <span class="text-sm font-sans text-slate-400">hrs</span>`;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                 COLOR-CODED HISTORY CALENDAR MODULE                        */
+        /* -------------------------------------------------------------------------- */
+
+        function changeCalendarMonth(delta) {
+            state.currentCalDate.setMonth(state.currentCalDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = state.currentCalDate.getFullYear();
+            const month = state.currentCalDate.getMonth();
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", 
+                                "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const startDayOfWeek = firstDay.getDay();
+            for (let i = 0; i < startDayOfWeek; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "h-10 rounded-xl bg-slate-950/20 border border-slate-900/50 opacity-20";
+                grid.appendChild(emptyCell);
+            }
+
+            const todayKey = getTodayKey();
+
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const mm = String(month + 1).padStart(2, '0');
+                const dd = String(day).padStart(2, '0');
+                const dateKey = `${year}-${mm}-${dd}`;
+
+                const log = state.calendarHistory[dateKey];
+                const isToday = dateKey === todayKey;
+
+                const cell = document.createElement('button');
+                cell.onclick = () => openHistoryModal(dateKey);
+
+                let bgStyle = "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700";
+
+                if (log) {
+                    if (log.score >= 80) {
+                        bgStyle = "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold hover:bg-emerald-500/30";
+                    } else if (log.score >= 60) {
+                        bgStyle = "bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold hover:bg-amber-500/30";
+                    } else {
+                        bgStyle = "bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold hover:bg-rose-500/30";
+                    }
+                }
+
+                if (isToday) {
+                    bgStyle += " ring-2 ring-indigo-500 ring-offset-1 ring-offset-slate-950";
+                }
+
+                cell.className = `h-10 rounded-xl border flex flex-col items-center justify-center relative text-xs transition-all active:scale-95 ${bgStyle}`;
+                
+                let dot = log ? `<span class="w-1.5 h-1.5 rounded-full ${log.score >= 80 ? 'bg-emerald-400' : log.score >= 60 ? 'bg-amber-400' : 'bg-rose-400'} absolute bottom-1"></span>` : '';
+
+                cell.innerHTML = `
+                    <span class="${log ? '-mt-1' : ''}">${day}</span>
+                    ${dot}
+                `;
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function openHistoryModal(dateKey) {
+            const log = state.calendarHistory[dateKey];
+            const modal = document.getElementById('history-modal');
+
+            document.getElementById('hist-modal-date').innerText = dateKey;
+
+            if (!log) {
+                document.getElementById('hist-modal-title').innerText = "No Entry Logged";
+                document.getElementById('hist-modal-grade').innerText = "--";
+                document.getElementById('hist-modal-grade').className = "text-2xl font-black text-slate-600 mt-0.5";
+                document.getElementById('hist-modal-score').innerText = "N/A";
+                document.getElementById('hist-modal-prod').innerText = "0.0h";
+                document.getElementById('hist-modal-wasted').innerText = "0.0h";
+                document.getElementById('hist-modal-tasks').innerText = "0%";
+                document.getElementById('hist-modal-water').innerText = "0/8";
+                document.getElementById('hist-modal-feedback').innerText = "No evaluation was recorded for this date.";
+            } else {
+                document.getElementById('hist-modal-title').innerText = `Report for ${dateKey}`;
+                document.getElementById('hist-modal-grade').innerText = log.grade;
+                
+                const gradeColor = log.score >= 80 ? 'text-emerald-400' : log.score >= 60 ? 'text-amber-400' : 'text-rose-400';
+                document.getElementById('hist-modal-grade').className = `text-2xl font-black ${gradeColor} mt-0.5`;
+
+                document.getElementById('hist-modal-score').innerText = `${log.score}/100`;
+                document.getElementById('hist-modal-prod').innerText = `${log.productiveHours.toFixed(1)}h`;
+                document.getElementById('hist-modal-wasted').innerText = `${log.wastedHours.toFixed(1)}h`;
+                document.getElementById('hist-modal-tasks').innerText = `${log.taskRate}%`;
+                document.getElementById('hist-modal-water').innerText = `${log.waterGlasses}/8`;
+                document.getElementById('hist-modal-feedback').innerText = log.feedback || "No feedback archived.";
+            }
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                     END OF DAY EVALUATION MODAL                            */
+        /* -------------------------------------------------------------------------- */
+
+        function openEndDayEvaluationModal() {
+            const modal = document.getElementById('evaluation-modal');
+            const modalCard = document.getElementById('modal-card');
+
+            const prod = state.productiveHours;
+            const wasted = state.wastedHours;
+            const totalHoursLogged = prod + wasted;
+
+            const totalTasks = state.tasks.length;
+            const completedTasks = state.tasks.filter(t => t.completed).length;
+            const taskRate = totalTasks === 0 ? 100 : Math.round((completedTasks / totalTasks) * 100);
+
+            let disciplineScore = 70;
+
+            if (totalHoursLogged > 0) {
+                const ratio = prod / totalHoursLogged;
+                disciplineScore += (ratio * 30) - ((1 - ratio) * 20);
+            }
+
+            disciplineScore += (taskRate / 100) * 20 - 10;
+
+            if (state.waterGlasses >= 6) disciplineScore += 10;
+
+            disciplineScore = Math.max(0, Math.min(100, Math.round(disciplineScore)));
+
+            let grade = 'F';
+            let gradeColor = 'text-rose-500';
+            if (disciplineScore >= 90) { grade = 'A+'; gradeColor = 'text-emerald-400'; }
+            else if (disciplineScore >= 80) { grade = 'A'; gradeColor = 'text-emerald-400'; }
+            else if (disciplineScore >= 70) { grade = 'B'; gradeColor = 'text-cyan-400'; }
+            else if (disciplineScore >= 60) { grade = 'C'; gradeColor = 'text-amber-400'; }
+            else if (disciplineScore >= 50) { grade = 'D'; gradeColor = 'text-rose-400'; }
+
+            let feedback = "";
+            if (disciplineScore >= 85) {
+                feedback = `Outstanding discipline today! You maintained high focus with ${prod.toFixed(1)} hours of productive work and achieved a task completion rate of ${taskRate}%. Keep building this momentum tomorrow!`;
+            } else if (disciplineScore >= 65) {
+                feedback = `Solid effort today! You accumulated ${prod.toFixed(1)} productive hours. However, you logged ${wasted.toFixed(1)} hours of procrastination. Try breaking your tasks into smaller, less daunting chunks to reduce avoidance.`;
+            } else {
+                feedback = `Today was a challenging day for focus with ${wasted.toFixed(1)} wasted hours logged. Don't be discouraged—discipline is a daily practice. Set just 2 core non-negotiable tasks for tomorrow morning and start early.`;
+            }
+
+            if (state.waterGlasses < 6) {
+                feedback += " Also, remember that dehydration causes fatigue! Try to hit your 8 glasses goal tomorrow.";
+            }
+
+            state.latestEvaluation = {
+                score: disciplineScore,
+                grade: grade,
+                productiveHours: prod,
+                wastedHours: wasted,
+                taskRate: taskRate,
+                waterGlasses: state.waterGlasses,
+                feedback: feedback
+            };
+
+            document.getElementById('eval-modal-date').innerText = `Evaluation for ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}`;
+            document.getElementById('eval-grade-display').innerText = grade;
+            document.getElementById('eval-grade-display').className = `text-4xl font-black ${gradeColor} mt-1`;
+            document.getElementById('eval-score-display').innerHTML = `${disciplineScore}<span class="text-base text-slate-500 font-normal">/100</span>`;
+            
+            const focusPct = totalHoursLogged > 0 ? Math.round((prod / totalHoursLogged) * 100) : 0;
+            document.getElementById('eval-ratio-display').innerText = `${focusPct}% Productive`;
+            
+            document.getElementById('eval-productive-text').innerText = `${prod.toFixed(1)}h`;
+            document.getElementById('eval-wasted-text').innerText = `${wasted.toFixed(1)}h`;
+            document.getElementById('eval-tasks-text').innerText = `${completedTasks}/${totalTasks}`;
+            document.getElementById('eval-water-text').innerText = `${state.waterGlasses} / 8 Glasses`;
+            document.getElementById('eval-feedback-text').innerText = feedback;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalCard.classList.remove('scale-95');
+            modalCard.classList.add('scale-100');
+        }
+
+        function closeEvaluationModal() {
+            const modal = document.getElementById('evaluation-modal');
+            const modalCard = document.getElementById('modal-card');
+
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-95');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function saveAndArchiveDay() {
+            if (state.latestEvaluation) {
+                const todayKey = getTodayKey();
+                state.calendarHistory[todayKey] = state.latestEvaluation;
+            }
+
+            closeEvaluationModal();
+            setTimeout(() => {
+                state.productiveHours = 0;
+                state.wastedHours = 0;
+                state.waterGlasses = 0;
+                state.tasks = state.tasks.filter(t => !t.completed);
+                saveToLocalStorage();
+                
+                renderTasks();
+                renderWaterTracker();
+                updateTalliesDisplay();
+                renderCalendar();
+                alert("Day logged to calendar! Completed tasks and daily metrics have been reset for tomorrow.");
+            }, 300);
+        }
+
+        function resetDayDataConfirm() {
+            if (confirm("Reset today's timers, water tracker, and logged hours? (Your tasks list and calendar history will remain)")) {
+                state.productiveHours = 0;
+                state.wastedHours = 0;
+                state.waterGlasses = 0;
+                saveToLocalStorage();
+                renderWaterTracker();
+                updateTalliesDisplay();
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
